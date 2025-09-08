@@ -15,15 +15,6 @@ mpl.rcParams["axes.unicode_minus"] = False
 # 스타일만 적용(폰트는 rc를 따르게)
 sns.set_theme(style="whitegrid")
 
-sns.set_theme(
-    style="whitegrid",
-    rc={
-        # 설치된 폰트들 중 사용 가능한 것을 앞에서부터 선택
-        "font.family": ["NanumGothic", "Noto Sans CJK KR", "Noto Sans KR", "DejaVu Sans"],
-        "axes.unicode_minus": False,  # 마이너스 기호 깨짐 방지
-    },
-)
-
 # import koreanize_matplotlib  # 한글/마이너스 자동 설정
 # import matplotlib.font_manager as fm
 
@@ -38,7 +29,7 @@ sns.set_theme(
 # plt.rcParams['axes.unicode_minus'] = False
 
 st.set_page_config(page_title="퇴직율 대시보드", layout="wide")
-sns.set(style="whitegrid", font="Malgun Gothic")
+# sns.set(style="whitegrid", font="Malgun Gothic")
 # sns.set(style="whitegrid", font="NanumGothicOTF")
 
 # 1) 데이터 로드
@@ -108,4 +99,5 @@ if col_name in df.columns:
         ax3.set_ylabel("퇴직율(%)"); 
         ax3.bar_label(ax3.containers[0], fmt="%.1f")
         st.pyplot(fig3)
+
 
