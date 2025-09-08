@@ -3,6 +3,18 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+import seaborn as sns
+
+sns.set_theme(
+    style="whitegrid",
+    rc={
+        # 설치된 폰트들 중 사용 가능한 것을 앞에서부터 선택
+        "font.family": ["NanumGothic", "Noto Sans CJK KR", "Noto Sans KR", "DejaVu Sans"],
+        "axes.unicode_minus": False,  # 마이너스 기호 깨짐 방지
+    },
+)
+
 # import koreanize_matplotlib  # 한글/마이너스 자동 설정
 # import matplotlib.font_manager as fm
 
