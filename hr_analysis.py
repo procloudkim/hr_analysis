@@ -62,23 +62,23 @@ def get_font_info():
     }
 
 
-# Streamlit 앱 코드 예시
-import korean_font_config
+# # Streamlit 앱 코드 예시
+# import korean_font_config
 
-# 한글 폰트 설정 적용
-selected = korean_font_config.setup_korean_fonts()
+# # 한글 폰트 설정 적용
+# selected = korean_font_config.setup_korean_fonts()
 
-# 설정된 폰트 확인 출력
-font_info = korean_font_config.get_font_info()
-st.write(f"Matplotlib 기본 폰트 패밀리: {font_info['rcParams.font.family']}")
-st.write(f"실제 사용 폰트: {font_info['effective_font_name']} ({font_info['effective_font_path']})")
+# # 설정된 폰트 확인 출력
+# font_info = korean_font_config.get_font_info()
+# st.write(f"Matplotlib 기본 폰트 패밀리: {font_info['rcParams.font.family']}")
+# st.write(f"실제 사용 폰트: {font_info['effective_font_name']} ({font_info['effective_font_path']})")
 
-# 예시 차트 그리기
-import matplotlib.pyplot as plt
-plt.figure()
-plt.title("예시 차트 - 한글 출력 확인")
-plt.plot([1, 2, 3], [1, 4, 9])
-st.pyplot(plt)  # Streamlit에 Matplotlib 차트 렌더링
+# # 예시 차트 그리기
+# import matplotlib.pyplot as plt
+# plt.figure()
+# plt.title("예시 차트 - 한글 출력 확인")
+# plt.plot([1, 2, 3], [1, 4, 9])
+# st.pyplot(plt)  # Streamlit에 Matplotlib 차트 렌더링
 
 
 
@@ -203,5 +203,6 @@ if col_name in df.columns:
         ax3.set_ylabel("퇴직율(%)")
         ax3.bar_label(ax3.containers[0], fmt="%.1f")
         st.pyplot(fig3)
+
 
 
