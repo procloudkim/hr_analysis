@@ -2,9 +2,18 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 
-import seaborn as sns
+# 이전 잘못된 설정 초기화(중요)
+mpl.rcParams.update(mpl.rcParamsDefault)
+
+# 리눅스에서 설치될 한글 폰트 우선 지정 + 폴백
+mpl.rcParams["font.family"] = ["NanumGothic", "Noto Sans CJK KR", "Noto Sans KR", "DejaVu Sans"]
+mpl.rcParams["axes.unicode_minus"] = False
+
+# 스타일만 적용(폰트는 rc를 따르게)
+sns.set_theme(style="whitegrid")
 
 sns.set_theme(
     style="whitegrid",
@@ -99,3 +108,4 @@ if col_name in df.columns:
         ax3.set_ylabel("퇴직율(%)"); 
         ax3.bar_label(ax3.containers[0], fmt="%.1f")
         st.pyplot(fig3)
+
