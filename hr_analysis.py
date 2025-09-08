@@ -7,6 +7,61 @@ import matplotlib.font_manager as fm
 import seaborn as sns
 
 
+# korean_font_config.py
+import matplotlib.pyplot as plt
+from matplotlib import font_manager as fm
+
+def setup_korean_fonts():
+    """한글 폰트 설정: 설치된 폰트를 찾아 Matplotlib 및 Seaborn 기본 폰트로 적용"""
+    # 1. Seaborn 테마 설정 (폰트 지정 없이 스타일만 적용)
+    try:
+        import seaborn as sns
+        sns.set_theme(style="whitegrid")  # 폰트는 Matplotlib 설정을 따름
+    except ImportError:
+        pass  # seaborn 미설치시 넘어감
+
+    # 2. 사용 가능한 한글 폰트 탐색 (Nanum, Noto 등 우선 순위)
+    candidate_fonts = [
+        "NanumGothic", "NanumBarunGothic", "NanumMyeongjo",
+        "Noto Sans CJK KR", "Noto Sans CJK", "Noto Sans KR",
+        "Malgun Gothic", "AppleGothic"
+    ]
+    selected_font = None
+    for font_name in candidate_fonts:
+        try:
+            fm.findfont(font_name, fallback_to_default=False)
+            selected_font = font_name
+            break  # 폰트를 찾으면 루프 종료
+        except Exception:
+            continue
+    if selected_font is None:
+        selected_font = "DejaVu Sans"  # 최후 수단 (기본 폰트)
+
+    # 3. Matplotlib 폰트 설정: font.family 에 선택된 폰트 적용
+    plt.rcParams["font.family"] = selected_font
+    plt.rcParams["axes.unicode_minus"] = False  # 한글 폰트 사용 시 마이너스 기호 깨짐 해결
+
+    return selected_font
+
+def get_font_info():
+    """현재 Matplotlib/Seaborn에 적용된 기본 폰트 정보를 반환"""
+    font_family = plt.rcParams["font.family"]
+    # font.family이 리스트 형태로 저장되므로 문자열 리스트로 변환
+    if isinstance(font_family, str):
+        family_list = [font_family]
+    else:
+        family_list = list(font_family)
+    # Matplotlib이 찾은 실제 폰트 파일 경로 (FontProperties 사용)
+    font_prop = fm.FontProperties(family=family_list)
+    font_path = fm.findfont(font_prop)
+    font_name = fm.FontProperties(fname=font_path).get_name()
+    return {
+        "rcParams.font.family": family_list,  # 설정된 폰트 패밀리 리스트
+        "effective_font_name": font_name,    # Matplotlib이 사용하는 실제 폰트 이름
+        "effective_font_path": font_path     # Matplotlib이 사용하는 폰트 파일 경로
+    }
+
+
 # Streamlit 앱 코드 예시
 import korean_font_config
 
@@ -148,4 +203,5 @@ if col_name in df.columns:
         ax3.set_ylabel("퇴직율(%)")
         ax3.bar_label(ax3.containers[0], fmt="%.1f")
         st.pyplot(fig3)
+
 
