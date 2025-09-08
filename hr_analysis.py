@@ -6,57 +6,54 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import seaborn as sns
 
-# ─────────────────────────────────────────────────────────────
-# 0) 페이지 설정(최상단 1회)
+# 0) 페이지 설정
 st.set_page_config(page_title="퇴직율 대시보드", layout="wide")
 
-# 1) 폰트 안전 설정(A안: packages.txt로 설치된 시스템 폰트만 활용)
+# 1) 폰트 설정(A안: packages.txt로 설치된 시스템 폰트만 사용)
 @st.cache_resource
 def setup_korean_font():
-    # 이전 실행 흔적 초기화(스트림릿은 프로세스 재사용하므로 중요)
+    # 이전 실행 흔적 초기화(스트림릿은 프로세스 재사용)
     mpl.rcParams.update(mpl.rcParamsDefault)
     mpl.rcParams["axes.unicode_minus"] = False
 
-    # 컨테이너에 설치될 가능성이 높은 후보들(우선순위)
+    # 컨테이너에 설치될 가능성이 높은 후보들
     preferred = [
         "NanumGothic",        # fonts-nanum
         "Noto Sans CJK KR",   # fonts-noto-cjk
-        "Noto Sans KR",       # 일부 배포판에서 이렇게 등록됨
-        "DejaVu Sans"         # 최후 폴백(한글 글리프 없을 수 있음)
+        "Noto Sans KR",       # 일부 배포판 명칭
+        "NanumBarunGothic",   # fonts-nanum 포함
     ]
 
-    # 현재 프로세스에서 Matplotlib이 인식한 폰트 패밀리 이름 목록
     available = {f.name for f in fm.fontManager.ttflist}
 
-    # 1차: 정확 일치 탐색
+    # 1차: 정확 일치
     chosen = next((name for name in preferred if name in available), None)
 
-    # 2차: Noto/Nanum 계열 와일드카드 탐색(배포판마다 이름이 살짝 다름)
+    # 2차: 부분 일치(배포판/버전에 따라 이름이 조금 다른 경우)
     if chosen is None:
         for name in sorted(available):
-            if ("Nanum" in name) or ("Noto" in name and "CJK" in name and "KR" in name):
+            if ("Nanum" in name) or ("Noto" in name and "KR" in name):
                 chosen = name
                 break
 
-    # 3차: 완전 폴백
+    # 3차: 최후 폴백(그래도 한글은 Noto CJK가 있으면 그걸 택함)
     if chosen is None:
         chosen = "DejaVu Sans"
 
-    # rcParams 반영
+    # ⛔ 리스트가 아닌 "문자열 하나"로 확정해서 세팅
     mpl.rcParams["font.family"] = chosen
 
-    # Seaborn은 스타일만 적용(폰트는 rc를 따르게)
+    # Seaborn은 스타일만 적용(폰트는 rc를 따른다)
     sns.set_theme(style="whitegrid")
 
-    # 디버깅/확인용 정보 반환
-    resolved_path = fm.findfont(mpl.rcParams["font.family"])
+    # 디버깅용: 여기서 리스트를 넣으면 TypeError가 나니 'chosen'만 넘긴다
+    resolved_path = fm.findfont(fm.FontProperties(family=chosen))
     return {"chosen": chosen, "resolved": resolved_path}
 
 font_info = setup_korean_font()
-# 필요하면 주석 해제하고 확인해보세요(배포 환경에서 어떤 폰트가 잡혔는지).
+# 필요 시 확인:
 # st.caption(f"🖋 사용 폰트: {font_info['chosen']} | 경로: {font_info['resolved']}")
 
-# ─────────────────────────────────────────────────────────────
 # 2) 데이터 로드(인코딩 튼튼하게)
 @st.cache_data(show_spinner=False)
 def load_df(path: str = "HR Data.csv") -> pd.DataFrame:
@@ -70,10 +67,9 @@ def load_df(path: str = "HR Data.csv") -> pd.DataFrame:
     if df is None:
         return pd.DataFrame()
 
-    # BOM 제거(가끔 컬럼명에 붙어 들어옴)
+    # BOM 제거
     df.columns = [c.lstrip("\ufeff") for c in df.columns]
 
-    # 파생 및 정리
     if "퇴직여부" in df.columns:
         df["퇴직"] = df["퇴직여부"].map({"Yes": 1, "No": 0}).astype("int8")
     df.drop(['직원수', '18세이상'], axis=1, errors="ignore", inplace=True)
@@ -84,7 +80,6 @@ if df.empty:
     st.error("데이터가 없습니다. 'HR Data.csv' 파일을 확인하세요.")
     st.stop()
 
-# ─────────────────────────────────────────────────────────────
 # 3) KPI
 st.title("퇴직율 분석 및 인사이트")
 n = len(df); quit_n = int(df["퇴직"].sum())
@@ -96,8 +91,7 @@ k2.metric("퇴직자 수", f"{quit_n:,}명")
 k3.metric("유지율", f"{stay_rate:.1f}%")
 k4.metric("퇴직율", f"{quit_rate:.1f}%")
 
-# ─────────────────────────────────────────────────────────────
-# 4) 그래프 1: 부서별 퇴직율
+# 4) 부서별 퇴직율
 if "부서" in df.columns:
     dept = (df.groupby("부서")["퇴직"].mean().sort_values(ascending=False) * 100)
     st.subheader("부서별 퇴직율")
@@ -108,11 +102,9 @@ if "부서" in df.columns:
     plt.xticks(rotation=15, ha="right")
     st.pyplot(fig1)
 
-# ─────────────────────────────────────────────────────────────
-# 5) 그래프 2/3: 두 칼럼
+# 5) 두 칼럼: 급여인상율/야근정도
 c1, c2 = st.columns(2)
 
-# (좌) 급여인상율과 퇴직율
 if "급여증가분백분율" in df.columns:
     tmp = df[["급여증가분백분율", "퇴직"]].dropna().copy()
     tmp["인상률(%)"] = tmp["급여증가분백분율"].round().astype(int)
@@ -125,7 +117,6 @@ if "급여증가분백분율" in df.columns:
         ax2.set_ylabel("퇴직율(%)")
         st.pyplot(fig2)
 
-# (우) 야근정도별 퇴직율
 col_name = "야근정도"
 if col_name in df.columns:
     ot = (df.groupby(col_name)["퇴직"].mean() * 100)
