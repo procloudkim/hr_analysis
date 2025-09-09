@@ -1,0 +1,9 @@
+streamlit==1.49.1
+pandas==2.3.2
+numpy==2.3.2
+plotly==5.22.0
+matplotlib==3.10.6
+seaborn==0.13.2
+koreanize-matplotlib==0.1.1 
+python-dateutil==2.9.0.post0
+statsmodels==0.14.2
